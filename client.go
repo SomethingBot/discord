@@ -1,5 +1,5 @@
-// Package discord contains a implementation of a websocket client to discord
-package discord
+// Package dizzy contains a implementation of a websocket client to discord
+package dizzy
 
 import (
 	"compress/zlib"
@@ -206,8 +206,8 @@ func (c *Client) handshake() error {
 			Intents: c.intents,
 			Properties: primitives.GatewayIdentifyProperties{
 				OS:      runtime.GOOS,
-				Browser: "discordingestor",
-				Device:  "discordingestor",
+				Browser: "dizzy",
+				Device:  "dizzy",
 			},
 		},
 	})
@@ -221,7 +221,7 @@ func (c *Client) handshake() error {
 	return nil
 }
 
-var ErrorNoACKAfterHeartbeat = fmt.Errorf("discord: did not receive an ACK after sending a heartbeat")
+var ErrorNoACKAfterHeartbeat = fmt.Errorf("dizzy: did not receive an ACK after sending a heartbeat")
 
 func (c *Client) generateJitter() float64 { //todo: doesn't need to be on Client struct
 	b := make([]byte, 8)
