@@ -3,6 +3,7 @@ package dizzy
 import (
 	"log"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -23,10 +24,7 @@ func TestClient_OpenClose(t *testing.T) {
 		if err != nil {
 			t.Fatalf("error on reading apikeyfile (%v)\n", err)
 		}
-		apikey = string(apikeyBytes)
-		if apikey[len(apikey)-1] == '\n' {
-			apikey = apikey[:len(apikey)-2]
-		}
+		apikey = strings.ReplaceAll(string(apikeyBytes), "\n", "")
 	}
 
 	gatewayURI, err := discordwebapi.GetGatewayWebsocketURI("")
