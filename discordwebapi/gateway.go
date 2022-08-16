@@ -10,25 +10,28 @@ import (
 	"github.com/SomethingBot/dizzy/libinfo"
 )
 
-type GatewayWebsocketInformationSessionStartLimit struct {
+// SessionStartLimit is described at https://discord.com/developers/docs/topics/gateway#session-start-limit-object
+type SessionStartLimit struct {
 	Total          int `json:"total"`
 	Remaining      int `json:"remaining"`
 	ResetAfter     int `json:"reset_after"`
 	MaxConcurrency int `json:"max_concurrency"`
 }
 
+// GatewayWebsocketInformation contains information for a sharded bot
 type GatewayWebsocketInformation struct {
-	Url               string                                       `json:"url"`
-	Shards            int                                          `json:"shards"`
-	SessionStartLimit GatewayWebsocketInformationSessionStartLimit `json:"session_start_limit"`
+	URL               string            `json:"url"`
+	Shards            int               `json:"shards"`
+	SessionStartLimit SessionStartLimit `json:"session_start_limit"`
 }
 
-func GetGatewayWebsocketInformation(discordApiGatewayURL string, apiKey string) (GatewayWebsocketInformation, error) {
-	if discordApiGatewayURL == "" {
-		discordApiGatewayURL = "https://discord.com/api/gateway/bot"
+// GetGatewayWebsocketInformation gets information to connect to the discord websocket based on the provided apiKey
+func GetGatewayWebsocketInformation(discordAPIGatewayURL string, apiKey string) (GatewayWebsocketInformation, error) {
+	if discordAPIGatewayURL == "" {
+		discordAPIGatewayURL = "https://discord.com/api/gateway/bot"
 	}
 
-	req, err := http.NewRequest("GET", discordApiGatewayURL, nil)
+	req, err := http.NewRequest("GET", discordAPIGatewayURL, nil)
 	if err != nil {
 		return GatewayWebsocketInformation{}, err
 	}
@@ -55,7 +58,7 @@ func GetGatewayWebsocketInformation(discordApiGatewayURL string, apiKey string) 
 		if err != nil {
 			return GatewayWebsocketInformation{}, fmt.Errorf("could not readall data from resp.Body (%w)", err)
 		}
-		return GatewayWebsocketInformation{}, WebAPIError{JsonData: errorData} //todo: convert to real error type
+		return GatewayWebsocketInformation{}, WebAPIError{JSONData: errorData} //todo: convert to real error type
 	}
 
 	var gwi GatewayWebsocketInformation
@@ -75,13 +78,13 @@ func GetGatewayWebsocketInformation(discordApiGatewayURL string, apiKey string) 
 	return gwi, nil
 }
 
-//GetGatewayWebsocketURI returns the current Discord Gateway WSS URL, pass discordApiGatewayURL as "" to use default  //todo: make it so test doesn't have to hit server
-func GetGatewayWebsocketURI(discordApiGatewayURL string) (url.URL, error) {
-	if discordApiGatewayURL == "" {
-		discordApiGatewayURL = "https://discord.com/api/gateway"
+//GetGatewayWebsocketURI returns the current Discord Gateway WSS URL, pass discordAPIGatewayURL as "" to use default  //todo: make it so test doesn't have to hit server
+func GetGatewayWebsocketURI(discordAPIGatewayURL string) (url.URL, error) {
+	if discordAPIGatewayURL == "" {
+		discordAPIGatewayURL = "https://discord.com/api/gateway"
 	}
 
-	req, err := http.NewRequest("GET", discordApiGatewayURL, nil)
+	req, err := http.NewRequest("GET", discordAPIGatewayURL, nil)
 	if err != nil {
 		return url.URL{}, err
 	}
@@ -93,13 +96,13 @@ func GetGatewayWebsocketURI(discordApiGatewayURL string) (url.URL, error) {
 		return url.URL{}, err
 	}
 
-	urlJson := struct {
-		Url string `json:"url"`
+	urlJSON := struct {
+		URL string `json:"url"`
 	}{}
 
 	decoder := json.NewDecoder(resp.Body)
 	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&urlJson)
+	err = decoder.Decode(&urlJSON)
 	if err != nil {
 		err2 := resp.Body.Close()
 		if err2 != nil {
@@ -113,7 +116,7 @@ func GetGatewayWebsocketURI(discordApiGatewayURL string) (url.URL, error) {
 		return url.URL{}, err
 	}
 
-	uri, err := url.ParseRequestURI(urlJson.Url)
+	uri, err := url.ParseRequestURI(urlJSON.URL)
 	if err != nil {
 		return url.URL{}, err
 	}
