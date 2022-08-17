@@ -1,7 +1,7 @@
 package primitives
 
 import (
-	"fmt"
+	"errors"
 	"time"
 	"unicode/utf8"
 )
@@ -142,23 +142,23 @@ type Embed struct {
 
 var (
 	//ErrorInvalidUTF8 is when a message does not contain valid utf8
-	ErrorInvalidUTF8 = fmt.Errorf("primitives: message contains invalid utf8")
+	ErrorInvalidUTF8 = errors.New("primitives: message contains invalid utf8")
 	//ErrorEmbedTooLarge is when the combined sum of characters in Embed.Title, Embed.Description, all EmbedFields (EmbedField.Name, EmbedField.Value), EmbedFooter.Text, and EmbedAuthor.Name fields across all embeds attached to a message exceeds 6000 characters
-	ErrorEmbedTooLarge = fmt.Errorf("primitives: embed data too large")
+	ErrorEmbedTooLarge = errors.New("primitives: embed data too large")
 	//ErrorEmbedTitleTooLarge is when Embed.Title is over 256 characters
-	ErrorEmbedTitleTooLarge = fmt.Errorf("primitives: embed title too large")
+	ErrorEmbedTitleTooLarge = errors.New("primitives: embed title too large")
 	//ErrorEmbedDescriptionTooLarge is when Embed.Description is over 4096 characters
-	ErrorEmbedDescriptionTooLarge = fmt.Errorf("primitives: embed description too large")
+	ErrorEmbedDescriptionTooLarge = errors.New("primitives: embed description too large")
 	//ErrorEmbedFieldsTooLarge is when len(Embed.Fields) > 25
-	ErrorEmbedFieldsTooLarge = fmt.Errorf("primitives: too many embed fields")
+	ErrorEmbedFieldsTooLarge = errors.New("primitives: too many embed fields")
 	//ErrorEmbedFieldNameTooLarge is when EmbedField.Name is over 256 characters
-	ErrorEmbedFieldNameTooLarge = fmt.Errorf("primitives: embedfield name too large")
+	ErrorEmbedFieldNameTooLarge = errors.New("primitives: embedfield name too large")
 	//ErrorEmbedFieldValueTooLarge is when EmbedField.Value is over 1024 characters
-	ErrorEmbedFieldValueTooLarge = fmt.Errorf("primitives: embedfield value too large")
+	ErrorEmbedFieldValueTooLarge = errors.New("primitives: embedfield value too large")
 	//ErrorEmbedFooterTextTooLarge is when EmbedFooter.Text is over 2048 characters
-	ErrorEmbedFooterTextTooLarge = fmt.Errorf("primitives: embed footer text too large")
+	ErrorEmbedFooterTextTooLarge = errors.New("primitives: embed footer text too large")
 	//ErrorEmbedAuthorNameTooLarge is when EmbedAuthor.Name is over 256 characters
-	ErrorEmbedAuthorNameTooLarge = fmt.Errorf("primitives: embed author name too large")
+	ErrorEmbedAuthorNameTooLarge = errors.New("primitives: embed author name too large")
 )
 
 //IsValid Embed following https://discord.com/developers/docs/resources/channel#embed-object-embed-limits, nil if valid, don't know if discord considers a rune a character or an utf-8 character, assuming utf-8
