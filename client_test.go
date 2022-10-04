@@ -27,7 +27,7 @@ func TestClient_OpenClose(t *testing.T) {
 		apikey = strings.ReplaceAll(string(apikeyBytes), "\n", "")
 	}
 
-	gatewayURI, err := discordwebapi.GetGatewayWebsocketURI("")
+	gatewayURI, err := discordwebapi.GetGatewayWebsocketURI(func() error { return nil }, "")
 	if err != nil {
 		t.Fatal(err)
 	}

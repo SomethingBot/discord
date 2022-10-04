@@ -25,23 +25,37 @@ type GatewayWebsocketInformation struct {
 	SessionStartLimit SessionStartLimit `json:"session_start_limit"`
 }
 
-// GetGatewayWebsocketInformation gets information to connect to the discord websocket based on the provided apiKey
-func GetGatewayWebsocketInformation(discordAPIGatewayURL string, apiKey string) (GatewayWebsocketInformation, error) {
-	if discordAPIGatewayURL == "" {
-		discordAPIGatewayURL = "https://discord.com/api/gateway/bot"
-	}
+// GetGatewayBot gets information to connect to the discord websocket, requires apikey
+func (a API) GetGatewayBot() (GatewayWebsocketInformation, error) {
+	const apiPath string = "/gateway/bot"
+	var req *http.Request
+	var err error
+	if a.BaseURL != "" {
+		req, err = http.NewRequest("GET", a.BaseURL+apiPath, nil)
+		if err != nil {
+			return GatewayWebsocketInformation{}, err
+		}
+	} else {
+		req, err = http.NewRequest("GET", DiscordAPIURL+apiPath, nil)
+		if err != nil {
+			return GatewayWebsocketInformation{}, err
+		}
 
-	req, err := http.NewRequest("GET", discordAPIGatewayURL, nil)
-	if err != nil {
-		return GatewayWebsocketInformation{}, err
 	}
 	req.Header.Set("User-Agent", libinfo.BotUserAgent)
-	req.Header.Add("Authorization", "Bot "+apiKey)
+	req.Header.Add("Authorization", "Bot "+a.ApiKey)
 
 	resp, err := (&http.Client{}).Do(req)
 	if err != nil {
 		return GatewayWebsocketInformation{}, err
 	}
+
+	s, err := UnmarshalRateLimitHeaders(resp.Header)
+	if err != nil {
+		return GatewayWebsocketInformation{}, err
+	}
+
+	fmt.Println(s.MarshalString())
 
 	defer func() {
 		if err != nil {
@@ -78,20 +92,26 @@ func GetGatewayWebsocketInformation(discordAPIGatewayURL string, apiKey string) 
 	return gwi, nil
 }
 
-//GetGatewayWebsocketURI returns the current Discord Gateway WSS URL, pass discordAPIGatewayURL as "" to use default  //todo: make it so test doesn't have to hit server
-func GetGatewayWebsocketURI(discordAPIGatewayURL string) (url.URL, error) {
-	if discordAPIGatewayURL == "" {
-		discordAPIGatewayURL = "https://discord.com/api/gateway"
-	}
-
-	req, err := http.NewRequest("GET", discordAPIGatewayURL, nil)
-	if err != nil {
-		return url.URL{}, err
+// GetGateway returns the current Discord Gateway WSS URL, pass discordAPIGatewayURL as "" to use default  //todo: make it so test doesn't have to hit server
+func (a API) GetGateway() (url.URL, error) {
+	const apiPath string = "/gateway"
+	var req *http.Request
+	var err error
+	if a.BaseURL != "" {
+		req, err = http.NewRequest("GET", a.BaseURL+apiPath, nil)
+		if err != nil {
+			return url.URL{}, err
+		}
+	} else {
+		req, err = http.NewRequest("GET", DiscordAPIURL+apiPath, nil)
+		if err != nil {
+			return url.URL{}, err
+		}
 	}
 	req.Header.Set("User-Agent", libinfo.BotUserAgent)
 
-	httpClient := http.Client{}
-	resp, err := httpClient.Do(req)
+	httpClient := &http.Client{}
+	resp, err := DoRequest(nil, a.Limiter, httpClient, req)
 	if err != nil {
 		return url.URL{}, err
 	}

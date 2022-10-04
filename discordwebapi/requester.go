@@ -1,0 +1,3 @@
+package discordwebapi
+
+func doJSONRequest() {}

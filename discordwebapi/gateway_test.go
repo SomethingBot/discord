@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestGetGatewayWebsocketInformation(t *testing.T) {
+func TestGetGatewayBot(t *testing.T) {
 	t.Parallel()
 	//todo: make a short test that doesn't hit server
 
@@ -14,16 +14,17 @@ func TestGetGatewayWebsocketInformation(t *testing.T) {
 		t.Skipf("test short flag set, skipping integration tests")
 	}
 
-	apikey := os.Getenv("discordapikey")
-	if apikey == "" {
+	api := API{}
+	api.ApiKey = os.Getenv("discordapikey")
+	if api.ApiKey == "" {
 		apikeyBytes, err := os.ReadFile("../apikeyfile")
 		if err != nil {
 			t.Fatalf("error on reading apikeyfile (%v)\n", err)
 		}
-		apikey = strings.ReplaceAll(string(apikeyBytes), "\n", "")
+		api.ApiKey = strings.ReplaceAll(string(apikeyBytes), "\n", "")
 	}
 
-	_, err := GetGatewayWebsocketInformation("", apikey)
+	_, err := api.GetGatewayBot()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,7 +33,12 @@ func TestGetGatewayWebsocketInformation(t *testing.T) {
 func TestGetGatewayURI(t *testing.T) {
 	t.Parallel()
 	//todo: make a short test that doesn't hit server
-	uri, err := GetGatewayWebsocketURI("")
+	if testing.Short() {
+		t.Skipf("test short flag set, skipping integration tests")
+	}
+
+	api := API{}
+	uri, err := api.GetGateway()
 	if err != nil {
 		t.Fatalf("could not get gateway URI (%v)\n", err)
 	}
